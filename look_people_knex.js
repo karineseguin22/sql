@@ -9,7 +9,7 @@ var knex = require('knex')({
     }
 })
 
-const [, ,fname] = process.argv; //arguments from terminal 
+const [, ,action, fname, lname, bdate] = process.argv; //arguments from terminal 
 
 //read function
 function namesFound(rows){
@@ -20,8 +20,21 @@ function namesFound(rows){
 }
 
 //query to read
-knex('famous_people')
-.select('id','first_name', 'last_name','birthdate')
-.where('first_name', 'Paul')
+switch(action){
+    case 'read':
+    knex('famous_people')
+.select('first_name', 'last_name','birthdate')
+.where('first_name', fname)
 .then(res => namesFound(res))
 .finally(() => knex.destroy()); 
+break;
+case 'add': 
+    knex('famous_people')
+.insert({first_name: fname ,last_name: lname, birthdate:bdate})
+.then(res => {
+    console.log('Added one new entry')
+    knex('famous_people')
+    .then(namesFound)
+})
+.finally(() => knex.destroy()); 
+}
